@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% block title %}
+
+{% endblock title %}
+
+
+{% block scripts %}
+    <script>
+        $(document).ready(function(){
+            const ctx = document.getElementById('myChart').getContext('2d');
+            const myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [{% for point in xvalues %}'{{point}}',{% endfor %}],
+                    datasets: [{
+                        label: '{{name1}}',
+                        data: [{% for point in yvalues %}'{{point}}',{% endfor %}],
+                        fill: false,
+                        borderColor: 'rgb(255, 0, 0)',
+                        tension: 0.2
+                        
+                    }, {
+                        label: '{{name2}}',
+                        data: [{% for point in yvalues2 %}'{{point}}',{% endfor %}],
+                        fill: false,
+                        borderColor: 'rgb(0, 0, 255)',
+                        tension: 0.2
+                    }]
+                },
+                options: {
+                    title: {
+                        display: true,
+                        text: '{{stat}} Per Game Based Only Upon Last {{games}} Games, {{name1}} vs. {{name2}}',
+                        fontSize: 25,
+                    },
+                    scales: {
+                        xAxes: [{
+                            display: true,
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Games Ago',
+                                fontSize: 14
+                            }
+                        }],
+                        yAxes: [{
+                            display: true,
+                            scaleLabel: {
+                                display: true,
+                                labelString: '{{stat}}',
+                                fontSize: 14
+                            }
+                        }]
+                    },
+                    tooltips: {
+                        callbacks: {
+                            title: function(item, everything) {
+                                return;
+                            },
+                            label: function(item, everything) {
+                                //console.log(item);
+                                //console.log(everything);
+
+                                let gamesAgo = item.xLabel;
+                                let spg = item.yLabel.toFixed(3);
+
+                                let label = ' ' + gamesAgo + ' Games Ago, Average: ' + spg;
+                                return label;
+                            }
+                        }
+                    }
+
+                }
+            });
+
+        });
+    </script>
+{% endblock scripts %}
+
+
+{% block content %}
+    {% load post_tags %}
+    <div class="container">
+        <div class="row" style="margin-top:0.5%"><a href="{% url 'home:about-me' %}"><p class="externalInfo">About</p></a></div>
+        
+        <div class="row" style="margin-top:0.5%; margin-bottom:1%"><p class="header">StatChaser</p></div>
+        <div class="row">
+            <div>
+                <canvas id="myChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+        {% if errorName != None %}
+            <div class="row">
+                <p style="color:red; text-align: center">
+                    Sorry, {{errorName}} has only played {{games}} games, so 'Number of Games' has been adjusted to {{games}}
+                </p>
+            </div>
+        {% endif %}
+        <div class="row" style="padding-top:1%">
+            <div class="col">
+                <form method="get" class="form-inline">
+                    <div class="form-group form-inline">
+                        <label class="control-label graphLabel">Player 1</label>
+                        {{ form.playerID }}
+                        <label class="control-label graphLabel">Player 2</label>
+                        {{ form.player2ID }}
+                        <label class="control-label graphLabel">Statistic</label>
+                        {{ form.stat }}
+                        <label class="control-label graphLabel">Number of Games</label>
+                        {{form.xrange}}
+                        <button type="submit" class="btn btn-primary" style="margin-left:2%">Graph</button>
+                        </form>
+                    </div>
+            </div>
+        </div>
+        {% if table|length == 0 %}
+            <p style="color:red; padding-top:2%; text-align:center">Sorry, a table could not be generated for {{name1}} because he has not played at least 50 games or some/all of his stats are missing from the database.</p>
+        {% else %}
+            <div class="row" style="padding-top:2%;">
+                <table class="table table-hover table-sm caption-top">
+                    <caption style="font-size:25px; font-weight: bold; text-align:center">{{name1}}, Career Average vs. Average in Last N Games</caption>
+                    <thead>
+                        <th scope="col">Statistic</th>
+                        <th scope="col" style="text-align:center">5 Games</th>
+                        <th scope="col" style="text-align:center">10 Games</th>
+                        <th scope="col" style="text-align:center">15 Games</th>
+                        <th scope="col" style="text-align:center">30 Games</th>
+                        <th scope="col" style="text-align:center">50 Games</th>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        {% for statRow in table %}
+                            <tr>
+                                <th scope="row">{% cycle_list statNames %}</th>
+                                {% for percent in statRow %}
+                                    <td {% if percent|default:""|slice:":1" == "-" %}class="table-danger"{% else %}class="table-success"{% endif %} style="text-align:center">{{percent}}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+        {% if table2|length == 0 %}
+            <p style="color:red; padding-top:2%; text-align:center">Sorry, a table could not be generated for {{name2}} because he has either not played at least 50 games or some/all of his stats are missing from the database.</p>
+        {% else %}
+            <div class="row" style="padding-top:2%;">
+                <table class="table table-hover table-sm caption-top">
+                    <caption style="font-size:25px; font-weight: bold; text-align:center">{{name2}}, Career Average vs. Average in Last N Games</caption>
+                    <thead>
+                        <th scope="col">Statistic</th>
+                        <th scope="col" style="text-align:center">5 Games</th>
+                        <th scope="col" style="text-align:center">10 Games</th>
+                        <th scope="col" style="text-align:center">15 Games</th>
+                        <th scope="col" style="text-align:center">30 Games</th>
+                        <th scope="col" style="text-align:center">50 Games</th>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        {% for statRow in table2 %}
+                            <tr>
+                                <th scope="row">{% cycle_list statNames %}</th>
+                                {% for percent in statRow %}
+                                    <td {% if percent|default:""|slice:":1" == "-" %}class="table-danger"{% else %}class="table-success"{% endif %} style="text-align:center">{{percent}}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        // In your Javascript (external .js resource or <script> tag)
+        $(document).ready(function() {
+            $('#id_playerID').select2();
+            $('#id_player2ID').select2();
+            $('#id_stat').select2();
+        });
+    </script>
+{% endblock content %}

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}
+
+{% endblock title %}
+
+{% block scripts %}
+        
+{% endblock scripts %}
+
+{% block content %}
+    {% load static %}
+    <div class="container" style="margin-top:10%">
+        <div class="row">
+            <div class="col">
+
+            </div>
+            <div class="col-6">
+                <p class="header">About StatChaser</p>
+                <p>I created StatChaser because I wanted a way to visualize how a player was doing if only their last N games were counted. I think this a valuable way to
+                    look at player data because it allows the user to ignore games early in a player's career that might not be relevant to the level that they are playing
+                    closer to the present. The chart component of StatChaser makes this possible and the additional tables underneath give the user an idea of how a player
+                    is performing currently in relation to his entire careeer.
+                </p>
+            </div>
+            <div class="col">
+
+            </div>
+        </div>
+        <div class="row" style="margin-top:2.5%">
+            <div class="col">
+
+            </div>
+            <div class="col-6">
+                <p class="header">About Me</p>
+                <div class="row">
+                    <div class="col-md-auto">
+                        <img src="{% static 'homescreen/small_profilepic.jpeg' %}" class="img-fluid rounded-circle floatstart" width="200" height="200" alt="">
+                    </div>
+                    <div class="col">
+                        <div style="padding-top:2%">
+                            <p>My name is Aryan Ray and I am currently a junior studying Computer Science at Columbia University in New York City. I've been programming for a little
+                                over 5 years now and have recently gotten into web development. I'm also a big basketball fan/nerd and so I had a lot of fun doing this project. I hope
+                                you find it useful or just have fun playing around with different player comparisons. &#128519
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+
+            </div>
+        </div>
+    </div>
+{% endblock content %}
